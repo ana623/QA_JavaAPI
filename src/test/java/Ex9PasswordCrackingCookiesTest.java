@@ -13,12 +13,17 @@ public class Ex9PasswordCrackingCookiesTest {
 
     @Test
     public void testGetCookies() {
+        // Открываем файл из подготовленного Json, содержащего все пароли
         File F = new File("C:\\Projects\\QA_JavaAPI\\test_data\\psw_data.json");
+        // Прочитали и распарсили Json и положилили его в pw. Это json дерево
         JsonPath pw = new JsonPath(F);
-        // List<String> pwList = pw.getList("psw"); // вариант1: делаем лист из содержимого элемента psw, который является массивом с паролями , из json
-        Set<String> pwList = new HashSet<>(pw.getList("psw")); // вариант2: делаем из листа сет, все дубликаты паролей должны уничтожиться при добавлении
+        // Теперь надо сделать из этого Json коллекцию, чтобы ходить по нему в цикле и обращаться к конкретным значениям массива эелемента psw, а не к целиком json.
+        // вариант1: делаем лист из содержимого элемента psw, который является массивом с паролями , из json: List<String> pwList = pw.getList("psw")
+        // Лист не очень подходит, потому что будет содержать дубликаты паролей
+        // вариант2: делаем из листа сет, все дубликаты паролей должны уничтожиться при добавлении, т.к. HashSet так реализован
+        Set<String> pwCollection = new HashSet<>(pw.getList("psw"));
 
-        for (String currentPW : pwList) {
+        for (String currentPW : pwCollection) {
             Map<String, String> data = new HashMap<>();
             data.put("login", "super_admin");
             data.put("password", currentPW);
