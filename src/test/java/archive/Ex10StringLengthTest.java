@@ -13,6 +13,6 @@ public class Ex10StringLengthTest {
     Если текст длиннее 15 символов, то тест должен проходить успешно. Иначе падать с ошибкой.*/
     public void testStringLength() {
         String testString = "length < 15";
-        assertTrue(testString.length() > 15, "Unexpected string length");
+        assertTrue(testString.length() > 15, "Unexpected string length: " + testString.length());
     }
 }
