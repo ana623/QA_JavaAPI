@@ -34,13 +34,6 @@ public class UserAuthTest extends BaseTestCase {
         //новая запись c использованием apiCoreRequests:
         Response responseGetAuth = apiCoreRequests // вместо RestAssured
                 .makePostRequest("https://playground.learnqa.ru/api/user/login", authData);
-        /* старое:
-        Response responseGetAuth = RestAssured
-                .given()
-                .body(authData)
-                .post("https://playground.learnqa.ru/api/user/login")
-                .andReturn();
-        */
         this.cookie = this.getCookie(responseGetAuth,"auth_sid");
         this.header = this.getHeader(responseGetAuth,"x-csrf-token");
         this.userIdOnAuth = this.getIntFromJason(responseGetAuth,"user_id");
@@ -83,18 +76,5 @@ public class UserAuthTest extends BaseTestCase {
             throw new IllegalArgumentException("Condition value is not known: " + condition);
         }
 
-        /* Старый код:
-        if (condition.equals("cookie")) {
-            spec.cookie("auth_sid", this.cookie); // если в качестве параметра пришло cookie, то будем передавать только cookie
-        } else if (condition.equals("headers")) {
-            spec.header("x-csrf-token", this.header); // если пришло значение header, то передаем только header
-        } else {
-            throw new IllegalArgumentException("Condition value is known: " + condition);
-        }
-
-        Response responseForCheck = spec.get().andReturn();
-        // используем наш кастомный ассерт:
-        Assertions.assertJsonByName(responseForCheck, "user_id", 0);
-        */
     }
 }
