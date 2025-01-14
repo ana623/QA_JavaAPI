@@ -17,13 +17,18 @@ public class BaseTestCase { // надо, чтобы все тесты насле
 
     protected String getCookie(Response Response, String name){
         Map<String, String> cookies = Response.getCookies();
-        assertTrue(cookies.containsKey(name), "Response doesn't have header with name " + name);
+        assertTrue(cookies.containsKey(name), "Response doesn't have cookie with name " + name);
         return cookies.get(name);
     }
 
     protected int getIntFromJason(Response Response, String name){
-        Response.then().assertThat().body("$", hasKey(name)); // знак $ указывает, что мы ищем наш ключ в корне нашего Json
+        Response.then().assertThat().body("$", hasKey(name)); // знак $ указывает, что мы ищем наш ключ в корне Json
         return Response.jsonPath().getInt(name);
+    }
+
+    protected String getStringFromJason(Response Response, String name){
+        Response.then().assertThat().body("$", hasKey(name)); // знак $ указывает, что мы ищем наш ключ в корне Json
+        return Response.jsonPath().getString(name);
     }
 }
 
