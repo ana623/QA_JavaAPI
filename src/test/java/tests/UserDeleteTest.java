@@ -14,6 +14,8 @@ import java.util.Map;
 
 @Epic("CRUD cases")
 @Feature("Delete user")
+@Link(name = "User Story: Delete user", url="https://scenarios/user-delete")
+@Owner("Anastasia Batakovskaya")
 public class UserDeleteTest extends BaseTestCase {
     private final ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
 
@@ -21,8 +23,13 @@ public class UserDeleteTest extends BaseTestCase {
     @Test
     @Description("This test checks that we cannot delete reserved user")
     @DisplayName("Test negative delete reserved user")
+
+    @Issue("JIRA-123")
+    @TmsLink("TMS-456")
+    @Severity(SeverityLevel.NORMAL)
     public void testDeleteReservedUser() {
         //LOGIN as existing user Kotov with id = 2
+        Allure.step("LOGIN as existing reserved user");
         Map<String, String> userData = new HashMap<>(); // очистили HashMap
         userData.put("email", "vinkotov@example.com");
         userData.put("password", "1234");
@@ -36,6 +43,7 @@ public class UserDeleteTest extends BaseTestCase {
         String cookie = this.getCookie(responseGetAuth, "auth_sid");
 
         // DELETE user with id = 2
+        Allure.step("DELETE user with id = 2");
         Response responseDeleteData = apiCoreRequests
                 .makeDeleteRequest(this.getApiURL() + "user/" + userId, header, cookie)
                 .andReturn();
@@ -43,6 +51,7 @@ public class UserDeleteTest extends BaseTestCase {
         Assertions.assertJsonHasField(responseDeleteData, "error");
 
         // Check that user with id = 2 still exists, and we can receive user info
+        Allure.step("Check that user with id = 2 still exists, and we can receive user info");
         Response responseUserData = apiCoreRequests
                 .makeGetRequest(this.getApiURL() + "user/" + userId, header, cookie)
                 .andReturn();
@@ -55,8 +64,12 @@ public class UserDeleteTest extends BaseTestCase {
     @Test
     @Description("This test creates user, performs login, deletes user, then tries to get userData by id and makes sure it's not possoble ")
     @DisplayName("Test positive delete user")
+    @Issue("JIRA-130")
+    @TmsLink("TMS-501")
+    @Severity(SeverityLevel.CRITICAL)
     public void testPositiveDeleteUser() {
         //CREATE user
+        Allure.step("CREATE user");
         Map<String, String> userData = DataGenerator.getRegistrationData();
         Response response = apiCoreRequests
                 .makePostRequest(this.getApiURL() + "user/", userData)
@@ -68,6 +81,7 @@ public class UserDeleteTest extends BaseTestCase {
 
 
         //LOGIN as newly created user
+        Allure.step("LOGIN as newly created user");
         userData = new HashMap<>(); // очистили HashMap, чтобы не посылать лишние параметры
         userData.put("email", email);
         userData.put("password", password);
@@ -80,6 +94,7 @@ public class UserDeleteTest extends BaseTestCase {
         String cookie = this.getCookie(responseGetAuth, "auth_sid");
 
         // DELETE user with id = userId
+        Allure.step("DELETE user");
         Response responseDeleteData = apiCoreRequests
                 .makeDeleteRequest(this.getApiURL() + "user/" + userId, header, cookie)
                 .andReturn();
@@ -99,8 +114,12 @@ public class UserDeleteTest extends BaseTestCase {
     @Test
     @Description("This test performs authorization as one user, then tries to delete another existing user")
     @DisplayName("Test negative delete user")
+    @Issue("JIRA-140")
+    @TmsLink("TMS-502")
+    @Severity(SeverityLevel.NORMAL)
     public void testNegativeDeleteUser() {
         //CREATE user1
+        Allure.step("CREATE user1");
         Map<String, String> userData = DataGenerator.getRegistrationData();
         Response response = apiCoreRequests
                 .makePostRequest(this.getApiURL() + "user/", userData)
@@ -108,6 +127,7 @@ public class UserDeleteTest extends BaseTestCase {
         int userId1 = getIntFromJason(response, "id");
 
         //CREATE user2
+        Allure.step("CREATE user1");
         userData = DataGenerator.getRegistrationData();
         apiCoreRequests
                 .makePostRequest(this.getApiURL() + "user/", userData)
@@ -116,6 +136,7 @@ public class UserDeleteTest extends BaseTestCase {
         String password = userData.get("password");
 
         //LOGIN as user2
+        Allure.step("LOGIN as user2");
         Map<String, String> authData = new HashMap<>();
         authData.put("email", email);
         authData.put("password", password);
@@ -127,7 +148,8 @@ public class UserDeleteTest extends BaseTestCase {
         String header = this.getHeader(responseGetAuth, "x-csrf-token");
         String cookie = this.getCookie(responseGetAuth, "auth_sid");
 
-        // Try to delete User1
+        //Try to delete User1
+        Allure.step("Try to delete User1");
         Response responseDeleteData = apiCoreRequests
                 .makeDeleteRequest(this.getApiURL() + "user/" + userId1, header, cookie)
                 .andReturn();
