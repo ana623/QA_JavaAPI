@@ -1,6 +1,8 @@
 package tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -14,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+@Epic("CRUD cases")
+@Feature("Update user")
 public class UserEditTest extends BaseTestCase {
     private final ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
 
@@ -24,7 +28,7 @@ public class UserEditTest extends BaseTestCase {
     // 1. создание пользователя, 2. авторизация, 3. редактирование, 4. получение данных
 
     // подготовим данные для создания пользователя, в том числе емейл (будем использовать генератор getRandomEmail из DataGenerator)
-    // создадим еще 2 метода в DataGenerator - getRegistrationData и
+    // создадим еще 2 метода в DataGenerator - getRegistrationData - без параметров и с параметрами, с одним именем
     public void testEditJustCreatedTest() {
         // GENERATE USER
         Map<String, String> userData = DataGenerator.getRegistrationData();
@@ -32,7 +36,7 @@ public class UserEditTest extends BaseTestCase {
         JsonPath responseCreateAuth = RestAssured
                 .given()
                 .body(userData)
-                .post("https://playground.learnqa.ru/api/user/")
+                .post(this.getApiURL() + "user/")
                 .jsonPath();
 
         String userId = responseCreateAuth.getString("id");
@@ -45,7 +49,7 @@ public class UserEditTest extends BaseTestCase {
         Response responseGetAuth = RestAssured
                 .given()
                 .body(authData)
-                .post("https://playground.learnqa.ru/api/user/login")
+                .post(this.getApiURL() + "user/login")
                 .andReturn();
 
         //EDIT (PUT)
@@ -59,7 +63,7 @@ public class UserEditTest extends BaseTestCase {
                 .header("x-csrf-token", this.getHeader(responseGetAuth, "x-csrf-token"))
                 .cookie("auth_sid", this.getCookie(responseGetAuth, "auth_sid"))
                 .body(editData)
-                .put("https://playground.learnqa.ru/api/user/" + userId)
+                .put(this.getApiURL() + "user/" + userId)
                 .andReturn();
 
         System.out.println("responseEditUser = " + responseEditUser.asString());
@@ -72,7 +76,7 @@ public class UserEditTest extends BaseTestCase {
                 .given()
                 .header("x-csrf-token", this.getHeader(responseGetAuth, "x-csrf-token"))
                 .cookie("auth_sid", this.getCookie(responseGetAuth, "auth_sid"))
-                .get("https://playground.learnqa.ru/api/user/" + userId)
+                .get(this.getApiURL() + "user/" + userId)
                 .andReturn();
 
         // System.out.println(responseUserData.asString()); // результат: firstName changed -  {"id":"114301","username":"learnqa","email":"learnqa20250113003740@example.com","firstName":"Changed Name","lastName":"learnqa"}
@@ -94,7 +98,7 @@ public class UserEditTest extends BaseTestCase {
         editData.put("firstName", newName);
 
         Response responsePutData = apiCoreRequests
-                .makePutRequest("https://playground.learnqa.ru/api/user/2", editData)
+                .makePutRequest(this.getApiURL() + "user/2", editData)
                 .andReturn();
         // под Неавторизованным пользоватлем возвращается: {"error": "Auth token not supplied"}
         Assertions.assertJsonByName(responsePutData, "error", "Auth token not supplied");
@@ -110,7 +114,7 @@ public class UserEditTest extends BaseTestCase {
         editData.put("firstName", newName);
 
         Response responsePutData = apiCoreRequests
-                .makePutRequest("https://playground.learnqa.ru/api/user/2", editData)
+                .makePutRequest(this.getApiURL() + "user/2", editData)
                 .andReturn();
         // под Неавторизованным пользоватлем возвращается: {"error": "Auth token not supplied"}
         Assertions.assertJsonByName(responsePutData, "error", "Auth token not supplied");
@@ -124,7 +128,7 @@ public class UserEditTest extends BaseTestCase {
         // GENERATE USER
         Map<String, String> userData = DataGenerator.getRegistrationData();
         Response responseGetAuth = apiCoreRequests
-                .makePostRequest("https://playground.learnqa.ru/api/user", userData)
+                .makePostRequest(this.getApiURL() + "user/", userData)
                 .andReturn();
 
         String email = userData.get("email");
@@ -137,7 +141,7 @@ public class UserEditTest extends BaseTestCase {
         userData.put("password", password);
 
         responseGetAuth = apiCoreRequests
-                .makePostRequest("https://playground.learnqa.ru/api/user/login", userData)
+                .makePostRequest(this.getApiURL() + "user/login", userData)
                 .andReturn();
 
         String header = this.getHeader(responseGetAuth, "x-csrf-token");
@@ -150,7 +154,7 @@ public class UserEditTest extends BaseTestCase {
         editData.put("email", emailWrong);
 
         Response responsePutData = apiCoreRequests
-                .makePutRequest("https://playground.learnqa.ru/api/user/" + userId, editData, header, cookie)
+                .makePutRequest(this.getApiURL() + "user/" + userId, editData, header, cookie)
                 .andReturn();
 
         // System.out.println("responsePutData = " + responsePutData.asString()); - вернулось responsePutData = {"error":"Invalid email format"}
@@ -165,7 +169,7 @@ public class UserEditTest extends BaseTestCase {
         // GENERATE USER
         Map<String, String> userData = DataGenerator.getRegistrationData();
         Response responseGetAuth = apiCoreRequests
-                .makePostRequest("https://playground.learnqa.ru/api/user", userData)
+                .makePostRequest(this.getApiURL() + "user/", userData)
                 .andReturn();
 
         String email = userData.get("email");
@@ -178,7 +182,7 @@ public class UserEditTest extends BaseTestCase {
         userData.put("password", password);
 
         responseGetAuth = apiCoreRequests
-                .makePostRequest("https://playground.learnqa.ru/api/user/login", userData)
+                .makePostRequest(this.getApiURL() + "user/login", userData)
                 .andReturn();
 
         String header = this.getHeader(responseGetAuth, "x-csrf-token");
@@ -191,7 +195,7 @@ public class UserEditTest extends BaseTestCase {
         editData.put("firstName", firstNameShort);
 
         Response responsePutData = apiCoreRequests
-                .makePutRequest("https://playground.learnqa.ru/api/user/" + userId, editData, header, cookie)
+                .makePutRequest(this.getApiURL() + "user/" + userId, editData, header, cookie)
                 .andReturn();
 
         //System.out.println("responsePutData = " + responsePutData.asString()); //  вернулось responsePutData = {"error":"The value for field `firstName` is too short"}

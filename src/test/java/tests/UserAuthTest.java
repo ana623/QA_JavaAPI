@@ -17,8 +17,8 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import org.junit.jupiter.api.DisplayName;
 
-@Epic("Authorisation cases")
-@Feature("Authorisation")
+@Epic("Authorization cases")
+@Feature("Authorization")
 public class UserAuthTest extends BaseTestCase {
 
     String cookie;
@@ -46,7 +46,7 @@ public class UserAuthTest extends BaseTestCase {
     public void testAuthUser () {
         Response responseCheckAuth = apiCoreRequests
                 .makeGetRequest(
-                        "https://playground.learnqa.ru/api/user/auth",
+                        this.getApiURL() + "user/auth",
                         this.header,
                         this.cookie
                 );
@@ -62,13 +62,13 @@ public class UserAuthTest extends BaseTestCase {
 
         if (condition.equals("cookie")){
             Response responseForCheck = apiCoreRequests.makeGetRequestWithCookie(
-                    "https://playground.learnqa.ru/api/user/auth",
+                    this.getApiURL() + "user/auth",
                     this.cookie
             );
             Assertions.assertJsonByName(responseForCheck, "user_id", 0);
         } else if (condition.equals("headers")){
             Response responseForCheck = apiCoreRequests.makeGetRequestWithToken(
-                    "https://playground.learnqa.ru/api/user/auth",
+                    this.getApiURL() + "user/auth",
                     this.header
             );
             Assertions.assertJsonByName(responseForCheck, "user_id", 0);

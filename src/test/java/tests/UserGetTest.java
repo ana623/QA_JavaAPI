@@ -1,6 +1,8 @@
 package tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -16,24 +18,22 @@ import java.util.Map;
 
 import static lib.Assertions.assertResponseCodeEquals;
 
+@Epic("CRUD cases")
+@Feature("Read user data")
 public class UserGetTest extends BaseTestCase {
     private final ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
 
     @Test // получение данных пользователя, когда мы НЕ авторизованы
     public void testGetUserDataNotAuth() {
         Response responseUserData = RestAssured
-                .get("https://playground.learnqa.ru/api/user/2")
+                .get(this.getApiURL() + "user/2")
                 // логика: если запрос данных из-под авторизованного пользователя, в ответе должны быть ВСЕ поля
                 // если запрос для чужого пользователя, мы должны видеть только username
                 .andReturn();
 
-        System.out.println(responseUserData.asString()); // ответ {"username":"Vitaliy"}
-        /*
-        Assertions.assertJsonHasKey(responseUserData, "username");
-        Assertions.assertJsonHasNotKey(responseUserData, "firstName");
-        Assertions.assertJsonHasNotKey(responseUserData, "lastName");
-        Assertions.assertJsonHasNotKey(responseUserData, "email");
-        */
+        //System.out.println(responseUserData.asString()); // ответ {"username":"Vitaliy"}
+        String[] expectedFields = {"password", "firstName", "lastName", "email"};
+        Assertions.assertJsonHasNotFields(responseUserData, expectedFields);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class UserGetTest extends BaseTestCase {
         Response responseGetAuth = RestAssured
                 .given()
                 .body(authData)
-                .post("https://playground.learnqa.ru/api/user/login")
+                .post(this.getApiURL() + "user/login")
                 .andReturn();
 
         //вынимаем из запроса Header и cookie:
@@ -59,14 +59,9 @@ public class UserGetTest extends BaseTestCase {
                 .given()
                 .header("x-csrf-token", header)
                 .cookie("auth_sid", cookie)
-                .get("https://playground.learnqa.ru/api/user/2")
+                .get(this.getApiURL() + "user/2")
                 .andReturn();
-        /*
-        Assertions.assertJsonHasKey(responseUserData, "username");
-        Assertions.assertJsonHasKey(responseUserData, "firstName");
-        Assertions.assertJsonHasKey(responseUserData, "lastName");
-        Assertions.assertJsonHasKey(responseUserData, "email");
-        */
+
 
         //применим новый метод assertJsonHasFields вместо старых assertions
         String[] expectedFields = {"username", "firstName", "lastName", "email"};
@@ -82,7 +77,7 @@ public class UserGetTest extends BaseTestCase {
         Map<String, String> userData;
         userData = DataGenerator.getRegistrationData();
         JsonPath response = apiCoreRequests
-                .makePostRequest("https://playground.learnqa.ru/api/user/", userData)
+                .makePostRequest(this.getApiURL() + "user/", userData)
                 .jsonPath();
 
         int idNewUser = response.getInt("id");
@@ -91,7 +86,7 @@ public class UserGetTest extends BaseTestCase {
         userData.put("email", "vinkotov@example.com");
         userData.put("password", "1234");
         Response responseGetAuth = apiCoreRequests
-                .makePostRequest("https://playground.learnqa.ru/api/user/login", userData)
+                .makePostRequest(this.getApiURL() + "user/login", userData)
                 .andReturn();
 
         String header = this.getHeader(responseGetAuth, "x-csrf-token");
@@ -100,7 +95,7 @@ public class UserGetTest extends BaseTestCase {
 
         // передаем данные существующего пользователя в заголовок запроса и id другого пользователя:
         Response responseUserData = apiCoreRequests
-                .makeGetRequest("https://playground.learnqa.ru/api/user/" + idNewUser, header, cookie)
+                .makeGetRequest(this.getApiURL() + "user/" + idNewUser, header, cookie)
                 .andReturn();
 
         assertResponseCodeEquals(responseUserData, 200);

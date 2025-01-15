@@ -1,6 +1,8 @@
 package tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import lib.ApiCoreRequests;
@@ -18,6 +20,8 @@ import java.util.Map;
 import static lib.Assertions.assertJsonHasField;
 import static lib.Assertions.assertResponseCodeEquals;
 
+@Epic("CRUD cases")
+@Feature("Create user")
 public class UserRegisterTest extends BaseTestCase {
     private final ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
 
@@ -36,12 +40,12 @@ public class UserRegisterTest extends BaseTestCase {
         // userData.put("firstName", "learnqa");
         // userData.put("lastName", "learnqa");
 
-        // отправляем эти данные в запрос CreateUser https://playground.learnqa.ru/api/user/
+        // отправляем эти данные в запрос CreateUser
 
         Response responseCreateAuth = RestAssured
                 .given()
                 .body(userData)
-                .post("https://playground.learnqa.ru/api/user/")
+                .post(this.getApiURL() + "user/")
                 .andReturn();
         // System.out.println(responseCreateAuth.asString());
         // System.out.println(responseCreateAuth.statusCode());
@@ -64,11 +68,11 @@ public class UserRegisterTest extends BaseTestCase {
         Response responseCreateAuth = RestAssured
                 .given()
                 .body(userData)
-                .post("https://playground.learnqa.ru/api/user/")
+                .post(this.getApiURL() + "user/")
                 .andReturn();
 
         assertResponseCodeEquals(responseCreateAuth, 200);
-        System.out.println(responseCreateAuth.asString()); // в ответ на запрос: приходит json {"id":"114082"} с id только что созданного user
+        //System.out.println(responseCreateAuth.asString()); // в ответ на запрос: приходит json {"id":"114082"} с id только что созданного user
         // проверим, что в json есть поле "id" - добавим новый метод в Asserstions - assertJsonHasKey:
         assertJsonHasField(responseCreateAuth, "id");
     }
@@ -83,7 +87,7 @@ public class UserRegisterTest extends BaseTestCase {
         userData.put("email", wrongEmail);
         userData = DataGenerator.getRegistrationData(userData);
         Response response = apiCoreRequests // вместо RestAssured
-                .makePostRequest("https://playground.learnqa.ru/api/user/", userData);
+                .makePostRequest(this.getApiURL() + "user/", userData);
 
         assertResponseCodeEquals(response, 400);
         Assertions.assertResponseTextEquals(response, "Invalid email format");
@@ -100,7 +104,7 @@ public class UserRegisterTest extends BaseTestCase {
         userData = DataGenerator.getRegistrationData(userData);
         userData.remove(missingParam);
         Response response = apiCoreRequests // вместо RestAssured
-                .makePostRequest("https://playground.learnqa.ru/api/user/", userData);
+                .makePostRequest(this.getApiURL() + "user/", userData);
 
         assertResponseCodeEquals(response, 400);
         Assertions.assertResponseTextEquals(response, "The following required params are missed: " + missingParam);
@@ -116,7 +120,7 @@ public class UserRegisterTest extends BaseTestCase {
         userData.put("username", WrongUsername);
         userData = DataGenerator.getRegistrationData(userData);
         Response response = apiCoreRequests // вместо RestAssured
-                .makePostRequest("https://playground.learnqa.ru/api/user/", userData);
+                .makePostRequest(this.getApiURL() + "user/", userData);
 
         assertResponseCodeEquals(response, 400);
         Assertions.assertResponseTextEquals(response, "The value of 'username' field is too short");
@@ -132,7 +136,7 @@ public class UserRegisterTest extends BaseTestCase {
         userData.put("username", WrongUsername);
         userData = DataGenerator.getRegistrationData(userData);
         Response response = apiCoreRequests // вместо RestAssured
-                .makePostRequest("https://playground.learnqa.ru/api/user/", userData);
+                .makePostRequest(this.getApiURL() + "user/", userData);
 
         assertResponseCodeEquals(response, 400);
         Assertions.assertResponseTextEquals(response, "The value of 'username' field is too long");
