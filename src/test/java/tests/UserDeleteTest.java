@@ -47,7 +47,6 @@ public class UserDeleteTest extends BaseTestCase {
         Response responseDeleteData = apiCoreRequests
                 .makeDeleteRequest(this.getApiURL() + "user/" + userId, header, cookie)
                 .andReturn();
-        // System.out.println("responseDeleteData.asString() = " + responseDeleteData.asString()); -> {"error":"Please, do not delete test users with ID 1, 2, 3, 4 or 5."}
         Assertions.assertJsonHasField(responseDeleteData, "error");
 
         // Check that user with id = 2 still exists, and we can receive user info
